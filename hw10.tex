@@ -1,0 +1,211 @@
+\documentclass[11pt]{article}
+\usepackage{fullpage}
+\usepackage{clrscode3e}
+\usepackage{url}
+\usepackage{amssymb} %lots of math symbols
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{xspace}
+\usepackage{graphicx,float}
+
+\DeclareMathOperator{\ptr}{\leq_P}
+\DeclareMathOperator{\deq}{:=}
+
+\newtheorem{lemma}{Lemma}
+
+\newcommand{\yes}{\textsc{yes}\xspace}
+\newcommand{\no}{\textsc{no}\xspace}
+\newcommand{\true}{\textsc{true}\xspace}
+\newcommand{\false}{\textsc{false}\xspace}
+
+\newcommand{\prob}[1]{\textsc{#1}\xspace}
+\newcommand{\vco}{\prob{VC-Opt}}
+\newcommand{\vc}{\prob{Vertex-Cover}}
+\newcommand{\vcopt}{\prob{Min-Vertex-Cover}}
+\newcommand{\is}{\prob{Independent-Set}}
+\newcommand{\isopt}{\prob{Max-Independent-Set}}
+\newcommand{\sat}{\prob{Sat}}
+\newcommand{\tsat}{\prob{3-Sat}}
+\newcommand{\ksat}{\prob{k-Sat}}
+\newcommand{\factor}{\prob{Factoring}}
+\newcommand{\nfactor}{\prob{Not-Factoring}}
+\newcommand{\primes}{\prob{Primes}}
+\newcommand{\tdm}{\prob{3d-Matching}}
+\newcommand{\tcolor}{\prob{Three-Coloring}}
+\newcommand{\wedding}{\prob{Wedding-Planner}}
+\newcommand{\clique}{\prob{Clique}}
+\newcommand{\cliqueopt}{\prob{Max-Clique}}
+\newcommand{\tsp}{\prob{TSP}}
+\newcommand{\metrictsp}{\prob{Metric-TSP}}
+
+\newcommand{\np}{\textsc{NP}\xspace}
+\newcommand{\npc}{\textsc{NPC}\xspace}
+\newcommand{\npcomplete}{\textsc{NP-Complete}\xspace}
+\newcommand{\p}{\textsc{P}\xspace}
+
+\newcommand{\titlebox}[6]{
+    \begin{center}
+        \framebox{
+            \vbox{
+            \hbox to 5.78in { {\bf #1} \hfill #2}
+            \vspace{4mm}
+            \hbox to 5.78in { {\Large \hfill #3 \hfill} }
+            \vspace{2mm}
+            \hbox to 5.78in { {\it Due: #4 \hfill #5} }
+        }
+    }
+    \end{center}
+}
+
+\begin{document}
+\titlebox{CPSC 41: Algorithms} % course number and title
+{your name(s) here} % student(s) name(s) --- this means you (pl)!
+{Homework 10} % assignment number
+{11:59pm December 6, 2017} % due date
+{Professor Bryce Wiedenbeck} % which prof's section
+
+\vspace{0.2in} This homework is due {\bf 11:59pm Wednesday, December 6.}
+%
+Submit this homework as a {\tt *.tex} file using \textbf{github}.
+%
+For this homework, you will work with a partner.  It's ok to discuss
+approaches with others at a high level, but most of your discussions
+should just be with your partner.  The only exception to this rule
+is work you've done with a lab partner \emph{while in lab}.  In this
+case, note who you've worked with and what parts were solved during
+lab.  If there are questions about academic integrity, please visit
+the section on Academic Integrity on the course website.
+
+
+\begin{enumerate}
+  \setcounter{enumi}{-1}
+\item Before final submission, make sure to fill out the README file.
+
+  \item {\bf (K\&T 11.3)}
+    Suppose you are given a set of positive integers $A=\{a_1, a_2,
+    \ldots, a_n\}$ and a positive integer $B$.
+    A subset $S \subseteq A$ is called \emph{feasible} if the sum of
+    the numbers in $S$ does not exceed $B$:
+    $$ \sum_{a_i \in S} a_i \leq B.$$
+    The sum of the numbers in $S$ will be called the \emph{total sum}
+    of $S$.
+
+    You would like to select a feasible subset $S$ of $A$ whose total
+    sum is as large as possible.
+    
+    For example, if $A=\{8,2,4\}$ and $B=11$ then the optimal solution
+    is the subset $S=\{8,2\}$.
+
+    \begin{enumerate}
+      \item
+      Here is an algorithm for this problem.
+      \begin{codebox}
+        \Procname{\proc{notQuiteRight}($A=\{a_1,\ldots, a_n\}, B$)}
+        \li initialize $S = \emptyset$
+        \li define $T=0$
+        \li \For $i=1$ to $n$: \Do
+        \li \If $T + a_i \leq B$ \Then
+        \li $S \gets S \cup \{a_i\}$
+        \li $T \gets T + a_i$
+        \End % if
+        \End % for
+        \li return $S$
+      \end{codebox}
+      Give an input for which the total sum of the set $S$ returned by
+      this algorithm is less than half the total sum of some other
+      feasible subset of $A$. (You don't necessarily have to find the
+      optimal subset, just \emph{some} feasible subset.)
+
+    \item Give a polynomial-time approximation algorithm for this
+      problem with the following guarantee:
+      It returns a feasible set $S \subseteq A$ whose total sum is at
+      least half as large as the maximum total sum of any feasible set
+      $S' \subseteq A$.
+      Your algorithm should run asymptotically faster than $O(n^2)$.
+    \end{enumerate}
+
+\item {\bf Reductions.}
+  Recall that many problems have a decision version and an
+  optimization version, so for example we can consider the problems
+  \begin{itemize}
+    \item $\is(G,k)$ returns $\yes$ iff there is an independent set in $G$ of
+      size $\geq k$,
+    \item $\isopt(G)$ returns the size of the largest independent set in
+      $G$, 
+    \item $\vc(G,k)$ returns $\yes$ iff there is a vertex cover of $G$ of size
+      at most $k$, 
+    \item $\vcopt(G)$ returns the size of the smallest vertex
+      cover of $G$,
+    \item $\clique(G,k)$ returns $\yes$ iff there is a clique in $G$
+      of size $k$, and
+    \item $\cliqueopt(G)$ returns the size of the largest
+      clique\footnote{A {\bf clique} is a set of nodes $C \subseteq V$
+        such that every two vertices $u, v \in C$ are connected by an
+        edge: $\{u,v\} \in E$.} in $G$.
+  \end{itemize}
+
+  We know that all \npcomplete problems reduce to each other. It would
+  be nice if this meant that an approximation algorithm for one
+  \npcomplete problem can be adapted easily into an equally good
+  approximation algorithm for any other \npcomplete problem.
+  
+  \begin{enumerate}
+  \item We proved that \vc $\leq_p$ \is by giving an
+    algorithm for \vc that used an algorithm for \is as a black box.
+
+    Suppose we wanted to solve the optimization versions of these
+    problems, \vcopt and \isopt.
+    Can we do the same thing with approximation algorithms?
+
+    That is, suppose we have a black box $2$-approximation algorithm
+    for \isopt. 
+    Design an approximation algorithm for \vcopt
+    using (as a black box) a $2$-approximation algorithm for \isopt.
+    (Your algorithm should be based on the reduction.)
+
+    What kind of approximation guarantee can you give?
+    Either prove an approximation ratio of your algorithm, or explain
+    why this ratio is hard to calculate.
+
+  \item Assume we have an $k$-approximation algorithm for \cliqueopt
+    where $k$ is a constant.  Can we use this to
+    construct a decent approximation algorithm for \isopt?
+    Justify your answer by designing an
+    approximation algorithm for \isopt, and either proving an
+    approximation ratio or explaining why this ratio is hard to
+    calculate.
+  \end{enumerate}
+
+\item {\bf Coloring.} 
+
+  Suppose we're somehow told that a graph is
+  three-colorable. Could that help us color the graph?  In this
+  problem, you'll shoot for a different kind of approximation.  Give a
+  polynomial time deterministic algorithm that, given any
+  \emph{three-colorable} graph $G = (V,E)$, colors the graph using
+  $O(\sqrt{n})$ colors.  Note that the endpoints of each edge
+  \emph{must} be different colors, and you're given that it is
+  \emph{possible} to color the graph using just three colors, but you
+  don't know what the coloring is.
+
+  Here are a few hints to help you along:
+  \begin{enumerate}
+  \item First, give a simple greedy algorithm that, given a graph $G =
+    (V,E)$ such that each vertex has at most $d$ neighbors, colors $G$
+    using only $d+1$ colors.
+  \item Second, recall the algorithm for deciding if a graph is
+    \emph{bipartite}.
+  \item Third, start coloring the three-colorable graph taking the
+    vertex with the most neighbors, and coloring those neighbors using
+    just two colors.
+  \end{enumerate}
+
+
+  \item {\bf Extra credit.}
+    Show that the triangle inequality assumption is necessary to
+    achieve the $2$-approximation for \metrictsp.  Specifically, show
+    that if there is a polynomial-time approximation for general \tsp
+    with $\rho(n)=O(1)$, then $\p = \np$.
+\end{enumerate}
+
+\end{document}
