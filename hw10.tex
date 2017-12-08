@@ -59,7 +59,7 @@
 
 \begin{document}
 \titlebox{CPSC 41: Algorithms} % course number and title
-{your name(s) here} % student(s) name(s) --- this means you (pl)!
+{Kastan Day, Kenny Gwong} % student(s) name(s) --- this means you (pl)!
 {Homework 10} % assignment number
 {11:59pm December 6, 2017} % due date
 {Professor Bryce Wiedenbeck} % which prof's section
@@ -123,6 +123,32 @@ the section on Academic Integrity on the course website.
       $S' \subseteq A$.
       Your algorithm should run asymptotically faster than $O(n^2)$.
     \end{enumerate}
+    
+    \textbf{Our Response}
+    \begin{enumerate}
+        \item A = \{2, 3, 9\} B = 11
+    It would pick 2 and 3, but then be unable to pick 9 and not returning the optimal set of 11 from 2 and 9. The sum of the set returned by the algorithm is 5 which is less than one half of 11.
+    
+        \item Consider the following polynomial time algorithm:
+        
+        \begin{codebox}
+            \Procname{MaxFeasibleApprox($A=\{a_1,\ldots, a_n\}, B$)}
+            \li $A \leftarrow$ sort $A$ from largest to smallest using MergeSort
+            \li initialize $S = \emptyset$
+            \li define $T=0$
+            \li \For $i=1$ to $n$: \Do
+            \li \If $T + a_i \leq B$ \Then
+            \li $S \gets S \cup \{a_i\}$
+            \li $T \gets T + a_i$
+            \End % if
+            \End % for
+            \li return $S$
+        \end{codebox}
+        This algorithm is runs in $O(n logn)$ time because it uses mergesort on line (1) which runs in $O(n logn)$.  Then it runs \proc{NotQuiteRight} which runs in $O(n)$.  Therefore the total runtime is $O(n logn) + O(n)$ or just $O(n logn)$.  This is asymptotically faster than $O(n^2)$.
+        
+        Now we show that \proc{MaxFeasibleApprox} returns a feasible set whose total sum is at least half as large as the maximum total sum of any feasible set.
+        Let $S$ be the total sum of the feasible set returned by \proc{MaxFeasibleApprox} and $S'$ be the maximum total sum of any feasible set.  Let $B$ be the integer that the sum of a feasible set cannot exceed.  Let $L$ be the largest value in $S$ and its position in $A$ denoted by $a_j$.  We want to show that $S \geq \frac{1}{2}S'$.  We know that $S' \leq B$ because if $S' > B$, $S'$ would not be a feasible subset. We also know that if $L > \frac{1}{2}B$ than $S \geq \frac{1}{2}S'$ because $L$ is in $S$.  After our algorithm selects $L$ it considers adding the rest of the elements in $A$.  If $\sum_{j+1}^{n}a_i \geq \frac{1}{2}B$, then we know that $S$ will be at least $\frac{1}{2}B$ because the items in $A$ are decreasing therefore there can't be an item in $S'$ that is greater or equal to $B-L$.  If $\sum_{j+1}^{n}a_i < \frac{1}{2}B$ then we know that $S$ = $S'$ because $S$ chooses all the values that are less than $B$ and therefore $S \geq \frac{1}{2}S'$. 
+    \end{enumerate}
 
 \item {\bf Reductions.}
   Recall that many problems have a decision version and an
@@ -175,6 +201,46 @@ the section on Academic Integrity on the course website.
     approximation ratio or explaining why this ratio is hard to
     calculate.
   \end{enumerate}
+  
+  \textbf{Our response:} 
+  
+  \begin{enumerate}
+      \item First, let us define the relationship between the optimization versions of \vc (MVC) and \is (MIS). 
+      Any graph $G = (V,E)$ has a max-independent-set $S$ if and only if $V \setminus S$ is a vertex-cover in $G$.  Let's call this vertex-cover $C$. Therefore, we can say that $|V| = |S| + |C|$ where $|C|$ is actually the size of not only \textit{a} vertex cover but the size of the a min-vertex-cover. 
+      
+      However, even though this seems as though a 2-approximation of MIS would yield a useful approximation of MVC, and under certain conditions it indeed can, we have no guarantees that it will actually be useful.  
+      
+      Take, for instance, that some graph $G$ has an optimal MIS of $S*$, where $|S*| \geq |V|/2$.  The size of the MIS is greater than or equal to half of the number of vertices.  In this case, the 2-approximation for MVC is only guaranteed to give a min-vertex-cover of size $|V|$, the entire set (or potentially worse, if the algorithm does not check its bounds!). This is a trivial answer and an unhelpful bound.  Therefore, a 2-approximation for max-independent-set does not offer any helpful information for determining the size, or vertices in, of the min-vertex-cover. 
+      
+      \item  If we assume we have a $k$-approx algorithm for \cliqueopt, where $k$ is a constant, then we can show that we can use that approximation algorithm to easily construct a  $k$-approximation algorithm for \isopt, with the same degree of approximation.
+      
+      To do this, all we have to do to set up our input to use \cliqueopt as a 'black box algorithm' is to 'flip the edges' - that is, remove all edges that existed in the original graph, and create an edge between each pair of nodes for which no edge existed in the original graph.  Then we can run \cliqueopt and that will return a set of nodes which forms a $k$-approx for \isopt.  
+      
+      This is because if we know a graph's Max-Clique, by simply 'flipping the edges,' as described above, that same set of nodes will form that graph's Max-Independent-Set, by the properties of Clique and Independent Set.  Therefore, since no transformation of the output is required, because the exact same set of nodes are used, we will have the same quality approximation for \isopt as we did for our $k$-approximation of \cliqueopt.
+      
+    \begin{codebox}
+    \Procname{\isopt $k$-approx($G=(V,E)$)}
+    \li $G' \leftarrow G$
+    \li \For each edge $e \in G'$: \# remove all edges from original graph
+        \Do 
+        \li delete $e$ from $G'$
+        \End
+    \li \For each node $u \in G'$: \# construct all edges which didn't exist in the original graph
+        \Do
+        \li \For each node $v \in G'$:
+            \Do
+            \li \If edge $e = (u, v)$ $\nexists$ in $G$:
+            \Do
+                \li add edge $e$ to $G'$
+            \End
+        \End
+    \End
+    \li Run k-approx algorithm \cliqueopt($G'$)
+    \li \Return $G'$
+    \end{codebox}
+      
+    
+  \end{enumerate}
 
 \item {\bf Coloring.} 
 
@@ -199,7 +265,29 @@ the section on Academic Integrity on the course website.
     vertex with the most neighbors, and coloring those neighbors using
     just two colors.
   \end{enumerate}
-
+  
+  \textbf{Our response:} 
+  
+Consider the following polynomial time algorithm where $d(v)$ denotes the largest degree of $v$ and $n$ = $|V|$:
+      
+    \begin{codebox}
+        \Procname{ThreeColorApprox($G=(V,E)$)}
+        \li $G' \leftarrow G$
+        \li \While $d(v)$ in $G' \geq \sqrt{n}$ \Do
+        \li color the neighbors of $v$ in $G$ using DFS and with only two colors
+        \li delete the neighbors of $v$ and corresponding edges in $G'$ \End
+        \li list $c$ of $\sqrt{n}$ colors
+        \li \For each node $w$ in $G'$ \Do
+        \li $d \leftarrow c$
+        \li \If $w$ not colored \Do
+        \li remove the colors of the neighbors of $w$ from $d$
+        \li color $w$ in $G$ and $G'$ a color from $d$ \End \End \End
+        \li \Return $G$
+    \end{codebox}
+    
+    The intuition behind our algorithm is we know that the neighbors of each vertex in a three-colorable graph form a bipartite graph because if the neighbors of a vertex form an odd cycle then the graph is not three-colorable.  Therefore we can take any vertex with $\sqrt{n}$ or more neighbors and use two colors to color all of its neighbors since the neighbors form a bipartite graph.  This will run at most $\sqrt{n}$ times because each time we are coloring $\sqrt{n}$ vertices and $\frac{n}{\sqrt{n}} = \sqrt{n}$.  This portion of the algorithm runs on lines (1)-(4) and will use $2\sqrt{n}$ colors since it uses two colors for each iteration of the loop and runs a maximum of $\sqrt{n} $ iterations.  Once we do this for vertices with more than $\sqrt{n}$ neighbors, the vertex with the greatest number of vertices will have less than $\sqrt{n}$ neighbors.  We can than use $\sqrt{n}$ colors to color the remaining vertices since we can use a greedy algorithm that given a maximum of $d$ neighbors, colors the vertices with $d+1$ neighbors. This portion of the algorithm runs on lines (5)-(10).  Therefore since the first portion of the algorithm used $2 \sqrt{n}$ colors and the second portion used $\sqrt{n}$ colors, the maximum number of colors used is $3\sqrt{n}$ colors which is $O(\sqrt{n})$. 
+    
+    Now we will show the runtime of the algorithm is polynomial.  Copying a graph in line (1) runs in constant time.  The while loop on line(2) runs $\sqrt{n}$ iterations.  Finding the node with the largest degree in $G'$ is $O(n^2)$ if we use an adjacency matrix because finding the degree of each node takes $O(n)$ time and there are $n$ nodes.  Then sorting the degrees to find the largest takes $O(nlogn)$ time which is negligible because it is less than $O(n^2)$.  Coloring the neighbors of a node on line (3) using DFS takes $O(n)$ time because we iterate through each node once and each node we visit has no more than one uncolored neighbor.  Deleting the neighbors of a node and its corresponding edges in line (4) takes $O(n)$ time.  So each iteration of the while loop on lines (2)-(6) does $O(n^2)+O(n)+O(n)$ work and runs $\sqrt{n}$ iterations.  Thus the amount of work done on lines (2)-(6) $O(n^{3/2})$ which runs in polynomial time.  Creating a list on line (5) takes constant time.  The for loop on line (6) runs a maximum of $n$ iterations.  Copying a list on line (7) runs in constant time.  Removing the colors of the neighbors from a list takes $O(\sqrt{n})$ work because there a maximum of $\sqrt{n}$ neighbors.  Coloring a node in two graphs on line (10) takes constant time.  Therefore the amount of work in the if condition on lines (8)-(10) is $O(\sqrt{n})$.  The total amount of work done in the for loop on lines (6)-(10) is $O(\sqrt{n})$ and the for loop runs $n$ iterations so the total amount of work done on lines (6)-(10) is $n^{3/2}$ which is polynomial time.  And finally the return statement on line (11) takes $O(1)$ which is less than polynomial time.  So the total runtime of the algorithm is $O(1)+O(n^{3/2})+O(n^{3/2})+O(1))$ or $O(n^{3/2})$ which is polynomial time.  Thus our algorithm runs in polynomial time.
 
   \item {\bf Extra credit.}
     Show that the triangle inequality assumption is necessary to
