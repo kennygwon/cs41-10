@@ -1,0 +1,27 @@
+Total: 9.25 / 10
+
+Problem 1: 3 / 3
+
+The algorithm is correct, but your notation needs some work. You should not use
+S and S' to represent the sizes of the optimal subset and the selected subset,
+respectively for two reasons. First, they are already used as descriptors for
+the actual sets, not their sizes. Second, even if you meant these to mean the
+sums of each of the sets, this would still be incorrect, as the optimal value
+is not equal to the sum of the elements of S' in most cases. You do define
+what these values are, however, so the proof is fine. Just choose different
+letters next time. (-0)
+
+Problem 2: 2.5 / 3
+
+a)
+- Your claim "G = (V, E) has a max-independent-set S if and only if V \S is a vertex-cover in G" isn't true (IS <==> VC would hold, as would MAX-IS <==> MIN-VC, but mixing doesn't). (-0)
+- Your argument about the approximation ratio is unclear, in part because it is so informal. (-.5)
+
+b) Good.
+
+
+Problem 3: 3.75 / 4
+
+Your notation in the pseudocode doesn't make much sense. How are you chosing v in the first loop? Why is d overloaded to mean both degree and a set of colors? What happens to v after its neighbors are colored? -.25
+
+
